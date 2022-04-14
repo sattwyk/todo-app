@@ -11,7 +11,7 @@ function App() {
   }
 
   function handelClick() {
-    setTasks((prev) => [...prev, task]);
+    task && setTasks((prev) => [...prev, task]);
     setTask((prev) => "");
   }
 

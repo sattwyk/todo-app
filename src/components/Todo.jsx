@@ -11,11 +11,16 @@ export default function Todo(props) {
 
   return (
     <div className="mt-3 flex justify-center items-center gap-2 ">
-      <img onClick={handleClick} className="w-7" src={DoneIcon} alt="Done" />
+      <img
+        onClick={handleClick}
+        className="w-7 fill-blue-500"
+        src={DoneIcon}
+        alt="Done"
+      />
       <h2 className={isDone ? "line-through" : null}>{props.task}</h2>
       <img
         onClick={props.remove}
-        className="w-7"
+        className="w-7 fill-blue-500"
         src={RemoveIcon}
         alt="Remove"
       />
