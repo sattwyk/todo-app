@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Todo from "./components/Todo";
 import "./App.css";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [task, setTask] = useState("");
@@ -10,89 +11,92 @@ function App() {
   const activeView = "text-blue-700 cursor-pointer";
 
   function handleChange(event) {
-    setTask((prev) => event.target.value);
+    setTask(event.target.value);
+  }
+
+  function todoComoponent() {
+    return (
+      <Todo
+        task={task}
+        isDone={() => isDone(task.id)}
+        remove={() => remove(task.id)}
+        key={task.id}
+      />
+    );
   }
 
   function handleKeyPress(event) {
     if (event.key === "Enter") {
-      const newTask = { task, completed: false };
+      const newTask = { id: uuidv4(), task, completed: false };
       task && setTasks((prev) => [...prev, newTask]);
-      setTask((prev) => "");
+      setTask("");
     }
   }
 
-  function isDone(task, index) {
-    const newArray = [];
-
-    for (let i = 0; i < tasks.length; i++) {
-      if (tasks[i].task === task && i === index) {
-        newArray.push({ task: tasks[i].task, completed: !tasks[i].completed });
-      } else {
-        newArray.push(tasks[i]);
-      }
-    }
-
-    setTasks(newArray);
+  function isDone(id) {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
   }
 
-  function remove(task, index) {
-    const newArray = [];
+  function remove(id) {
+    setTasks(tasks.filter((task) => task.id !== id));
+  }
 
-    for (let i = 0; i < tasks.length; i++) {
-      if (tasks[i].task !== task && i !== index) {
-        newArray.push(tasks[i]);
-      }
-    }
-
-    setTasks((prev) => newArray);
+  function clearCompleted() {
+    setTasks(tasks.filter((task) => !task.completed));
   }
 
   return (
     <>
-      <div className="mt-2 flex justify-center items-center gap-2 ">
+      <div className="mt-2 flex flex-col justify-center items-center">
+        <h2 className="text-2xl text-slate-700">TODO APP</h2>
         <input
           onChange={handleChange}
           onKeyPress={handleKeyPress}
           value={task}
-          className="border-2 border-blue-700 text-zinc-900"
+          className="border-2 border-blue-700 text-zinc-900 p-2"
+          placeholder="Create a new todo ..."
         />
       </div>
       {listView === "all" &&
-        tasks.map((task, index) => (
+        tasks.map((task) => (
           <Todo
             task={task}
-            isDone={() => isDone(task.task, index)}
-            remove={() => remove(task.task, index)}
-            key={index}
+            isDone={() => isDone(task.id)}
+            remove={() => remove(task.id)}
+            key={task.id}
           />
         ))}
       {listView === "active" &&
         tasks
           .filter((task) => !task.completed)
-          .map((task, index) => (
+          .map((task) => (
             <Todo
               task={task}
-              isDone={() => isDone(task.task, index)}
-              remove={() => remove(task.task, index)}
-              key={index}
+              isDone={() => isDone(task.id)}
+              remove={() => remove(task.id)}
+              key={task.id}
             />
           ))}
       {listView === "completed" &&
         tasks
           .filter((task) => task.completed)
-          .map((task, index) => (
+          .map((task) => (
             <Todo
               task={task}
-              isDone={() => isDone(task.task, index)}
-              remove={() => remove(task.task, index)}
-              key={index}
+              isDone={() => isDone(task.id)}
+              remove={() => remove(task.id)}
+              key={task.id}
             />
           ))}
 
-      <div className="mt-2 flex justify-center items-center gap-2">
-        <span>{`Item left: ${
+      <div className="mt-2 flex justify-center items-center gap-3">
+        <span className="text-green-700">{`${
           tasks.filter((task) => !task.completed).length
-        }`}</span>
+        } Items left`}</span>
 
         <span
           className={listView === "all" ? activeView : "cursor-pointer"}
@@ -111,6 +115,10 @@ function App() {
           onClick={() => setListView((prev) => "completed")}
         >
           Completed
+        </span>
+
+        <span onClick={clearCompleted} className="text-red-500 cursor-pointer">
+          Clear Completed
         </span>
       </div>
     </>
